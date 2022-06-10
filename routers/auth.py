@@ -88,7 +88,7 @@ def access_revoke(Authorize: AuthJWT = Depends()):
     # so they will get automatically removed after they expired.
     jti = Authorize.get_raw_jwt()['jti']
     redis_conn.setex(jti, auth_jwt_settings.access_expires, 'true')
-    return {"detail": "Access token has been revoke"}
+    return {"detail": "Access token has been revoked."}
 
 # Endpoint for revoking the current users refresh token
 
@@ -97,6 +97,6 @@ def access_revoke(Authorize: AuthJWT = Depends()):
 def refresh_revoke(Authorize: AuthJWT = Depends()):
     Authorize.jwt_refresh_token_required()
 
-    jti = Authorize.get_raw_jwt()['jti']
-    redis_conn.setex(jti, auth_jwt_settings.refresh_expires, 'true')
-    return {"detail": "Refresh token has been revoke"}
+    jti_refresh = Authorize.get_raw_jwt()['jti']
+    redis_conn.setex(jti_refresh, auth_jwt_settings.refresh_expires, 'true')
+    return {"detail": "Refresh token has been revoked."}
