@@ -7,6 +7,8 @@ from bson import json_util
 from models.user import UserLogin, User
 from schemas.user import serializeDict, serializeList
 from config.database import conn_str
+from config.redis import redis_conn
+from config.config import auth_jwt_settings
 from utils import utils
 
 auth = APIRouter(
@@ -73,3 +75,28 @@ def refresh(Authorize: AuthJWT = Depends()):
     new_access_token = Authorize.create_access_token(
         subject=current_user, fresh=False)
     return {"access_token": new_access_token}
+
+# Endpoint for revoking the current users access token
+
+
+@auth.delete('/access_revoke')
+def access_revoke(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+
+    # Store the tokens in redis with the value true for revoked.
+    # We can also set an expires time on these tokens in redis,
+    # so they will get automatically removed after they expired.
+    jti = Authorize.get_raw_jwt()['jti']
+    redis_conn.setex(jti, auth_jwt_settings.access_expires, 'true')
+    return {"detail": "Access token has been revoke"}
+
+# Endpoint for revoking the current users refresh token
+
+
+@auth.delete('/refresh_revoke')
+def refresh_revoke(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_refresh_token_required()
+
+    jti = Authorize.get_raw_jwt()['jti']
+    redis_conn.setex(jti, auth_jwt_settings.refresh_expires, 'true')
+    return {"detail": "Refresh token has been revoke"}

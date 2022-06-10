@@ -1,4 +1,3 @@
-from imp import reload
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi_jwt_auth import AuthJWT
@@ -8,14 +7,22 @@ from fastapi.responses import JSONResponse
 
 from routers.user import user
 from routers.auth import auth
-from config import config
+from config.config import auth_jwt_settings
+from config.redis import redis_conn
 
 app = FastAPI()
 
 
 @AuthJWT.load_config
 def get_config():
-    return config.auth_jwt_settings
+    return auth_jwt_settings
+
+
+@AuthJWT.token_in_denylist_loader
+def check_if_token_in_denylist(decrypted_token):
+    jti = decrypted_token['jti']
+    entry = redis_conn.get(jti)
+    return entry and entry == 'true'
 
 
 @app.exception_handler(AuthJWTException)
