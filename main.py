@@ -8,17 +8,14 @@ from fastapi.responses import JSONResponse
 
 from routers.user import user
 from routers.auth import auth
+from config import config
 
 app = FastAPI()
 
 
-class JWTSettings(BaseModel):
-    authjwt_secret_key: str = "secret"
-
-
 @AuthJWT.load_config
 def get_config():
-    return JWTSettings()
+    return config.settings
 
 
 @app.exception_handler(AuthJWTException)
