@@ -1,6 +1,4 @@
 from fastapi import APIRouter, Depends
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
 from bson import ObjectId
 
 from config.database import conn_str
@@ -28,12 +26,9 @@ async def find_all_users(current_user: dict = Depends(auth_utils.get_current_use
 async def current_logged_in_user(current_user: dict = Depends(auth_utils.get_current_user)):
     return current_user
 
-# @user.get('/waiting_approval', dependencies=[Depends(oauth2.RoleChecker(['checker']))])
-
 
 @user.get('/waiting_approval', dependencies=[Depends(auth_utils.RoleChecker(['admin', 'checker']))])
 async def find_all_users_waiting_approval(current_user: dict = Depends(auth_utils.get_current_user)):
-    print(f"conn.fastapi")
     return userList(conn_str.test_db.user.find({"is_approved": False}))
 
 
