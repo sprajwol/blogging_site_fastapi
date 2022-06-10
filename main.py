@@ -2,8 +2,14 @@ from imp import reload
 import uvicorn
 from fastapi import FastAPI
 
+from routers.user import user
+from routers.auth import auth
 
 app = FastAPI()
+
+
+app.include_router(auth)
+app.include_router(user)
 
 @app.get('/')
 def root():
