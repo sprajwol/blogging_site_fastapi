@@ -31,13 +31,13 @@ async def current_logged_in_user(current_user: dict = Depends(auth_utils.get_cur
 # @user.get('/waiting_approval', dependencies=[Depends(oauth2.RoleChecker(['checker']))])
 
 
-@user.get('/waiting_approval')
-async def find_all_users_waiting_approval():
+@user.get('/waiting_approval', dependencies=[Depends(auth_utils.RoleChecker(['admin', 'checker']))])
+async def find_all_users_waiting_approval(current_user: dict = Depends(auth_utils.get_current_user)):
     print(f"conn.fastapi")
     return userList(conn_str.test_db.user.find({"is_approved": False}))
 
 
-@user.post('/approve_user')
+@user.post('/approve_user', dependencies=[Depends(auth_utils.RoleChecker(['admin', 'checker']))])
 async def approve_user(data: Approval, current_user: dict = Depends(auth_utils.get_current_user)):
     waiting_approval_user = conn_str.test_db.user.find_one_and_update({"_id": ObjectId(data.user_id)}, {
         "$set": {
