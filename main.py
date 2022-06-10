@@ -15,7 +15,7 @@ app = FastAPI()
 
 @AuthJWT.load_config
 def get_config():
-    return config.settings
+    return config.auth_jwt_settings
 
 
 @app.exception_handler(AuthJWTException)

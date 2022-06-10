@@ -8,4 +8,4 @@ class JWTSettings(BaseSettings):
         env_file = '.env'
 
 
-settings = JWTSettings()
+auth_jwt_settings = JWTSettings()
