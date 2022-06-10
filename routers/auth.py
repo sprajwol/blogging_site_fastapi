@@ -60,7 +60,7 @@ def signup(user: User):
     return serializeList(conn_str.test_db.user.find({}))
 
 
-@auth.post('/refresh_token')
+@auth.post('/token_refresh')
 def refresh(Authorize: AuthJWT = Depends()):
     """
     Refresh token endpoint. This will generate a new access token from
