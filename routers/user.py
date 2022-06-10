@@ -6,6 +6,7 @@ from bson import ObjectId
 from config.database import conn_str
 from schemas.user import serializeDict, serializeList, userDict, userList
 from models.user import Approval
+from utils import auth_utils
 
 user = APIRouter(
     prefix="/users",
@@ -19,11 +20,17 @@ async def find_all_approved_users():
 
 
 @user.get('/all')
-async def find_all_approved_users():
+async def find_all_users(user: str = Depends(auth_utils.get_current_user)):
     return serializeList(conn_str.test_db.user.find({}))
 
 
+@user.get('/myprofile')
+async def current_logged_in_user(user: str = Depends(auth_utils.get_current_user)):
+    return user
+
 # @user.get('/waiting_approval', dependencies=[Depends(oauth2.RoleChecker(['checker']))])
+
+
 @user.get('/waiting_approval')
 async def find_all_users_waiting_approval():
     print(f"conn.fastapi")
