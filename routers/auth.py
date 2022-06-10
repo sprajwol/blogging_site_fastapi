@@ -34,7 +34,8 @@ def login(user_credentials: UserLogin, Authorize: AuthJWT = Depends()):
 
     # Use create_access_token() and create_refresh_token() to create our
     # access and refresh tokens
-    access_token = Authorize.create_access_token(subject=user['email'])
+    access_token = Authorize.create_access_token(
+        subject=user['email'], fresh=True)
     refresh_token = Authorize.create_refresh_token(subject=user['email'])
 
     return {
@@ -57,3 +58,18 @@ def signup(user: User):
         raise HTTPException(status_code=400, detail=json.loads(
             json_util.dumps(e.details)))
     return serializeList(conn_str.test_db.user.find({}))
+
+
+@auth.post('/refresh_token')
+def refresh(Authorize: AuthJWT = Depends()):
+    """
+    Refresh token endpoint. This will generate a new access token from
+    the refresh token, but will mark that access token as non-fresh,
+    as we do not actually verify a password in this endpoint.
+    """
+    Authorize.jwt_refresh_token_required()
+
+    current_user = Authorize.get_jwt_subject()
+    new_access_token = Authorize.create_access_token(
+        subject=current_user, fresh=False)
+    return {"access_token": new_access_token}
