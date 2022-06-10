@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Request, Depends, HTTPException, status
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+import json
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
+from pymongo.errors import WriteError
+from bson import json_util
 
-from models.user import UserLogin
-from schemas.user import serializeDict
+from models.user import UserLogin, User
+from schemas.user import serializeDict, serializeList
 from config.database import conn_str
 from utils import utils
 
@@ -42,3 +42,18 @@ def login(user_credentials: UserLogin, Authorize: AuthJWT = Depends()):
         "refresh_token": refresh_token,
         "token_type": "Bearer"
     }
+
+
+@auth.post('/signup', status_code=201)
+def signup(user: User):
+    print(f"inside signup:{user}")
+    hashed_password = utils.hash(user.password)
+    user.password = hashed_password
+
+    try:
+        user = conn_str.test_db.user.insert_one(dict(user))
+        # print(f"user:{user['_id']}")
+    except WriteError as e:
+        raise HTTPException(status_code=400, detail=json.loads(
+            json_util.dumps(e.details)))
+    return serializeList(conn_str.test_db.user.find({}))

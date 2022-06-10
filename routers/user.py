@@ -34,18 +34,18 @@ async def current_logged_in_user(user: str = Depends(auth_utils.get_current_user
 @user.get('/waiting_approval')
 async def find_all_users_waiting_approval():
     print(f"conn.fastapi")
-    return userList(conn_str.fastapi.user.find({"is_approved": False}))
+    return userList(conn_str.test_db.user.find({"is_approved": False}))
 
 
 @user.post('/approve')
 async def approve_users(data: Approval):
     print(f"data ::: {data.user_id}")
     # print(f"current_user ::: {current_user}")
-    waiting_approval_user = conn_str.fastapi.user.find_one_and_update({"_id": ObjectId(data.user_id)}, {
+    waiting_approval_user = conn_str.test_db.user.find_one_and_update({"_id": ObjectId(data.user_id)}, {
         "$set": {
             "is_approved": data.approved,
             # "approved_by": current_user["name"]
         }
     })
     print(f"waiting_approval_user ::: {waiting_approval_user}")
-    return "this is approved"
+    return userList(conn_str.test_db.user.find({"_id": ObjectId(waiting_approval_user._id)}))
