@@ -18,6 +18,7 @@ auth = APIRouter(
 
 @auth.post('/login')
 def login(user_credentials: UserLogin, Authorize: AuthJWT = Depends()):
+    print(f"inside login => {user_credentials}")
 
     user = serializeDict(conn_str.test_db.user.find_one(
         {"email": user_credentials.email}))
@@ -49,7 +50,7 @@ def login(user_credentials: UserLogin, Authorize: AuthJWT = Depends()):
 
 @auth.post('/signup', status_code=201)
 def signup(user: User):
-    # print(f"inside signup:{user}")
+    print(f"inside signup => {user}")
     hashed_password = utils.hash(user.password)
     user.password = hashed_password
 
