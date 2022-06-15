@@ -60,7 +60,9 @@ def signup(user: User):
     except WriteError as e:
         raise HTTPException(status_code=400, detail=json.loads(
             json_util.dumps(e.details)))
-    return serializeList(conn_str.test_db.user.find({}))
+    return {
+        "detail": "Signup successfull. PLease ask you admin to approve your account to login."
+    }
 
 
 @auth.post('/token_refresh')
