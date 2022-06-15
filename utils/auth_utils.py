@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT
 from bson import ObjectId
 from typing import List
@@ -9,7 +9,11 @@ from schemas.user import serializeDict
 
 
 def get_current_user(Authorize: AuthJWT = Depends()):
-    Authorize.jwt_required()
+    try:
+        Authorize.jwt_required()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=f"The Access Token could not be validated.")
 
     current_user = Authorize.get_jwt_subject()
 

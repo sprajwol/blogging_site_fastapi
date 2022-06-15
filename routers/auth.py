@@ -69,7 +69,11 @@ def refresh(Authorize: AuthJWT = Depends()):
     the refresh token, but will mark that access token as non-fresh,
     as we do not actually verify a password in this endpoint.
     """
-    Authorize.jwt_refresh_token_required()
+    try:
+        Authorize.jwt_refresh_token_required()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=f"The Refresh Token could not be validated.")
 
     current_user = Authorize.get_jwt_subject()
     new_access_token = Authorize.create_access_token(
@@ -81,7 +85,11 @@ def refresh(Authorize: AuthJWT = Depends()):
 
 @auth.delete('/access_revoke')
 def access_revoke(Authorize: AuthJWT = Depends()):
-    Authorize.jwt_required()
+    try:
+        Authorize.jwt_required()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=f"The Access Token could not be validated.")
 
     # Store the tokens in redis with the value true for revoked.
     # We can also set an expires time on these tokens in redis,
@@ -95,7 +103,11 @@ def access_revoke(Authorize: AuthJWT = Depends()):
 
 @auth.delete('/refresh_revoke')
 def refresh_revoke(Authorize: AuthJWT = Depends()):
-    Authorize.jwt_refresh_token_required()
+    try:
+        Authorize.jwt_refresh_token_required()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=f"The Refresh Token could not be validated.")
 
     jti_refresh = Authorize.get_raw_jwt()['jti']
     redis_conn.setex(jti_refresh, auth_jwt_settings.refresh_expires, 'true')
