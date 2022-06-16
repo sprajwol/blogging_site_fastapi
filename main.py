@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse
@@ -10,6 +11,20 @@ from config.config import auth_jwt_settings
 from config.redis import redis_conn
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @AuthJWT.load_config
