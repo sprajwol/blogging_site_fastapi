@@ -16,7 +16,7 @@ if not 'user' in db.list_collection_names():
         {
             "name": "Admin",
             "email": "admin@admin.com",
-            "role": "checker",
+            "role": "admin",
             "password": hashed_password,
             "is_approved": True
         }

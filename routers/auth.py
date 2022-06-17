@@ -64,6 +64,7 @@ def signup(user: User):
     except WriteError as e:
         raise HTTPException(status_code=400, detail=json.loads(
             json_util.dumps(e.details)))
+            
     return {
         "detail": "Signup successfull. PLease ask you admin to approve your account to login."
     }
