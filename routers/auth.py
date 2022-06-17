@@ -37,9 +37,13 @@ def login(user_credentials: UserLogin, Authorize: AuthJWT = Depends()):
 
     # Use create_access_token() and create_refresh_token() to create our
     # access and refresh tokens
+    user_claims={
+        "user_id": str(user['_id']),
+        "role": user['role']
+    }
     access_token = Authorize.create_access_token(
-        subject=user['email'], fresh=True)
-    refresh_token = Authorize.create_refresh_token(subject=user['email'])
+        subject=user['email'], user_claims=user_claims, fresh=True)
+    refresh_token = Authorize.create_refresh_token(subject=user['email'], user_claims=user_claims)
 
     return {
         "access_token": access_token,
