@@ -10,7 +10,7 @@ class ROLES_M(Enum):
 
 class User(BaseModel):
     name: str
-    contact_number: str = None
+    # contact_number: str = None
     # picture: str = None
     email: EmailStr
     password: str
