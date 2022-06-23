@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from bson import ObjectId
 from typing import List
 
@@ -50,5 +50,15 @@ async def create_multiple_users(user: List[User], current_user: dict = Depends(a
 
 
 @user.delete('/delete_single_user', dependencies=[Depends(auth_utils.RoleChecker(['admin']))])
-async def delete_user(user_id: str, current_user: dict = Depends(auth_utils.get_current_user)):
+async def delete_user(user_id: str, response:Response, current_user: dict = Depends(auth_utils.get_current_user)):
     user = conn_str.test_db.user.find_one_and_delete({"_id": ObjectId(user_id)})
+
+    if user:
+        return {
+            "detail" "The user has been deleted."
+        }
+    else:
+        response.status_code=404
+        return {
+            "detail": f"User with user_id '{user_id} is not found."
+        }
