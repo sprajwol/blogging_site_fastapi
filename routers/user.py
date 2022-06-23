@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from bson import ObjectId
+from typing import List
 
 from config.database import conn_str
 from schemas.user import serializeDict, serializeList, userDict, userList
-from models.user import Approval
+from models.user import Approval, User
 from utils import auth_utils
 
 user = APIRouter(
@@ -42,3 +43,12 @@ async def approve_user(data: Approval, current_user: dict = Depends(auth_utils.g
     })
 
     return userList(conn_str.test_db.user.find({"_id": ObjectId(waiting_approval_user["_id"])}))
+
+@user.get('/waiting_approval', dependencies=[Depends(auth_utils.RoleChecker(['admin']))], status_code=201)
+async def create_multiple_users(user: List[User], current_user: dict = Depends(auth_utils.get_current_user)):
+    return "created"
+
+
+@user.delete('/delete_single_user', dependencies=[Depends(auth_utils.RoleChecker(['admin']))])
+async def delete_user(user_id: str, current_user: dict = Depends(auth_utils.get_current_user)):
+    user = conn_str.test_db.user.find_one_and_delete({"_id": ObjectId(user_id)})
