@@ -12,6 +12,7 @@ def get_current_user(Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_required()
     except Exception as e:
+        # print(e)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail=f"The Access Token could not be validated.")
 

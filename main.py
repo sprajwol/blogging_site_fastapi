@@ -13,9 +13,7 @@ from config.redis import redis_conn
 app = FastAPI()
 
 origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:8000",
+    "*"
 ]
 
 app.add_middleware(
@@ -32,11 +30,11 @@ def get_config():
     return auth_jwt_settings
 
 
-@AuthJWT.token_in_denylist_loader
-def check_if_token_in_denylist(decrypted_token):
-    jti = decrypted_token['jti']
-    entry = redis_conn.get(jti)
-    return entry and entry == 'true'
+# @AuthJWT.token_in_denylist_loader
+# def check_if_token_in_denylist(decrypted_token):
+#     jti = decrypted_token['jti']
+#     entry = redis_conn.get(jti)
+#     return entry and entry == 'true'
 
 
 @app.exception_handler(AuthJWTException)

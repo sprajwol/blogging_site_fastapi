@@ -7,10 +7,19 @@ class ROLES_M(Enum):
     MAKER = 'maker'
     CHECKER = 'checker'
 
+class AdminUserCreation(BaseModel):
+    name: str
+    contact_number: str = None
+    # picture: str = None
+    email: EmailStr
+    password: str
+    role: ROLES_M = ROLES_M.MAKER
+    is_approved: bool = True
+    approved_by: str = None
 
 class User(BaseModel):
     name: str
-    # contact_number: str = None
+    contact_number: str = None
     # picture: str = None
     email: EmailStr
     password: str
