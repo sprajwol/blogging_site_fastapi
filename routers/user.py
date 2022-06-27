@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends, Response
+import json
+from fastapi import APIRouter, Depends, Response, status, HTTPException
 from bson import ObjectId
 from typing import List
+from pymongo.errors import WriteError
+from bson import json_util
 
 from config.database import conn_str
 from schemas.user import serializeDict, serializeList, userDict, userList
 from models.user import Approval, User, AdminUserCreation
-from utils import auth_utils
+from utils import auth_utils, utils
 
 user = APIRouter(
     prefix="/users",
@@ -63,6 +66,23 @@ async def delete_user(user_id: str, response:Response, current_user: dict = Depe
             "detail": f"User with user_id '{user_id} is not found."
         }
 
-@user.post('/create_multiple_users', dependencies=[Depends(auth_utils.RoleChecker(['admin']))])
+@user.post('/create_multiple_users', dependencies=[Depends(auth_utils.RoleChecker(['admin']))], status_code=status.HTTP_201_CREATED)
 async def create_multiple_users(users: List[AdminUserCreation], response:Response, current_user: dict = Depends(auth_utils.get_current_user)):
-    print(f'users => {users}')
+    for each_user in users:
+        raw_password = each_user.password
+        hashed_password = utils.hash(raw_password)
+        each_user.password = hashed_password
+        each_user.approved_by = str(current_user['_id'])
+
+        try:
+            user = conn_str.test_db.user.insert_one(dict(each_user))
+        except WriteError as e:
+            response.status = status.HTTP_400_BAD_REQUEST
+            return {
+                "detail": json.loads(json_util.dumps(e.details)),
+                "input_data": users
+            }
+    
+    return {
+        "detail":"All the users have been successfully created."
+    }

@@ -17,6 +17,9 @@ class AdminUserCreation(BaseModel):
     is_approved: bool = True
     approved_by: str = None
 
+    class Config:
+        use_enum_values = True
+
 class User(BaseModel):
     name: str
     contact_number: str = None
